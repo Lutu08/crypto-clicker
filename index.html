@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Clicker Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --premium: #fbbf24;
+            --crypto: #00d1b2;
+            --dark: #1e293b;
+            --darker: #0f172a;
+            --light: #f1f5f9;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, var(--darker), #1e1b4b);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* HEADER FIJO */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 3px solid var(--primary);
+            padding: 15px;
+            z-index: 1000;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 12px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--premium);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .stat-sub {
+            font-size: 0.75rem;
+            color: #cbd5e1;
+        }
+        
+        /* CONTENIDO PRINCIPAL */
+        .main-content {
+            padding: 100px 15px 100px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* BOTÓN DE CLICK CENTRAL */
+        .click-section {
+            text-align: center;
+            margin: 20px auto 40px;
+            padding: 20px;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 25px;
+            border: 4px solid var(--warning);
+            box-shadow: 0 15px 35px rgba(245, 158, 11, 0.3);
+        }
+        
+        .click-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            border: 8px solid white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin: 0 auto 25px;
+            transition: all 0.1s;
+            user-select: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+                        inset 0 -10px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .click-button:active {
+            transform: scale(0.95);
+            animation: none;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3),
+                        inset 0 -5px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .click-icon {
+            font-size: 4rem;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        .click-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        .click-power {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .cps-display {
+            color: var(--crypto);
+            font-weight: bold;
+            margin: 15px 0;
+            font-size: 1rem;
+        }
+        
+        /* BOTONES DE MEJORA RÁPIDA */
+        .quick-upgrades {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .quick-btn {
+            padding: 15px;
+            border-radius: 15px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+        
+        .quick-btn-warning {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            color: white;
+        }
+        
+        .quick-btn-primary {
+            background: linear-gradient(135deg, var(--primary), #2563eb);
+            color: white;
+        }
+        
+        .quick-btn:active {
+            transform: translateY(-3px);
+        }
+        
+        /* TABS INFERIORES */
+        .tabs {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(30, 41, 59, 0.98);
+            backdrop-filter: blur(10px);
+            border-top: 3px solid var(--primary);
+            z-index: 1000;
+            display: flex;
+            padding: 12px 5px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 10px;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        
+        .tab-icon {
+            font-size: 1.3rem;
+        }
+        
+        /* CONTENIDO DE TABS */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* GENERADORES */
+        .generators-container {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 3px solid var(--secondary);
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--secondary);
+        }
+        
+        .generators-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        @media (min-width: 600px) {
+            .generators-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .generator-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(30, 41, 59, 0.8));
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .generator-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--secondary);
+        }
+        
+        .generator-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .generator-icon {
+            font-size: 2rem;
+            color: var(--secondary);
+        }
+        
+        .generator-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .generator-level {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        
+        .generator-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin: 10px 0;
+        }
+        
+        .generator-income {
+            color: var(--secondary);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .generator-cost {
+            color: var(--premium);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        /* MEJORAS CON GEMAS */
+        .upgrades-container {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 3px solid var(--primary);
+        }
+        
+        .upgrades-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .upgrade-card {
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .upgrade-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        
+        .upgrade-card.purchased {
+            border-color: var(--secondary);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .upgrade-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .upgrade-icon {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+        
+        .upgrade-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .upgrade-cost {
+            color: var(--premium);
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        /* TIENDA DE GEMAS */
+        .gems-container {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 3px solid var(--premium);
+        }
+        
+        .gems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .gem-card {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.1));
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 3px solid var(--premium);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .gem-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .gem-icon {
+            font-size: 2.5rem;
+            color: var(--premium);
+            margin-bottom: 15px;
+        }
+        
+        .gem-name {
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .gem-price {
+            font-size: 1.3rem;
+            color: var(--premium);
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        /* RETIROS */
+        .withdraw-container {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 100px;
+            border: 3px solid var(--crypto);
+        }
+        
+        .crypto-info {
+            background: rgba(0, 209, 178, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 2px solid var(--crypto);
+        }
+        
+        .withdraw-form {
+            margin: 20px 0;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid var(--crypto);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        
+        /* BOTONES */
+        .btn {
+            padding: 15px 25px;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--secondary), #059669);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #d97706);
+            color: white;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), #2563eb);
+            color: white;
+        }
+        
+        .btn-premium {
+            background: linear-gradient(135deg, var(--premium), #f59e0b);
+            color: #1e293b;
+            font-weight: bold;
+        }
+        
+        .btn-crypto {
+            background: linear-gradient(135deg, var(--crypto), #00b89c);
+            color: white;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* NOTIFICACIONES */
+        .notification {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 12px;
+            z-index: 1001;
+            display: none;
+            animation: slideDown 0.3s;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translate(-50%, -20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        
+        .notification.success { background: var(--secondary); }
+        .notification.error { background: var(--danger); }
+        .notification.warning { background: var(--warning); }
+        .notification.info { background: var(--primary); }
+        .notification.premium { background: var(--premium); color: #1e293b; }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .click-button {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .click-icon {
+                font-size: 3.5rem;
+            }
+            
+            .gems-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px;
+            }
+            
+            .stat-value {
+                font-size: 1.2rem;
+            }
+            
+            .click-button {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .click-icon {
+                font-size: 3rem;
+            }
+            
+            .gems-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER CON ESTADÍSTICAS -->
+    <div class="header">
+        <div class="stat-box">
+            <div class="stat-label">💰 Dinero</div>
+            <div class="stat-value" id="money">0</div>
+            <div class="stat-sub">+<span id="moneyPerSec">0</span>/s</div>
+        </div>
+        
+        <div class="stat-box">
+            <div class="stat-label">₿ Cripto</div>
+            <div class="stat-value" id="crypto">0.000000</div>
+            <div class="stat-sub">≈ $<span id="cryptoValue">0.00</span></div>
+        </div>
+        
+        <div class="stat-box">
+            <div class="stat-label">💎 Gemas</div>
+            <div class="stat-value" id="gems">0</div>
+            <div class="stat-sub">Nivel <span id="level">1</span></div>
+        </div>
+    </div>
+    
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+        <!-- SECCIÓN DE CLICK -->
+        <div class="click-section">
+            <h2 style="text-align: center; margin-bottom: 20px; color: var(--warning);">
+                ¡HAZ CLIC PARA GANAR!
+            </h2>
+            
+            <div class="click-button" id="clickBtn">
+                <i class="fas fa-mouse-pointer click-icon"></i>
+                <div class="click-text">CLICK</div>
+            </div>
+            
+            <div class="click-power">+<span id="clickPower">1</span> por Click</div>
+            <div class="cps-display" id="cpsDisplay">0 CPS</div>
+            
+            <div class="quick-upgrades">
+                <button class="quick-btn quick-btn-warning" onclick="buyClickUpgrade()">
+                    <i class="fas fa-arrow-up"></i>
+                    Mejorar Click (<span id="clickUpgradeCost">50</span>)
+                </button>
+                <button class="quick-btn quick-btn-primary" onclick="openTab('generadores')">
+                    <i class="fas fa-industry"></i>
+                    Ver Generadores
+                </button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 0.9rem; color: #94a3b8;">Total Clicks</div>
+                    <div style="font-size: 1.5rem; font-weight: bold;" id="totalClicks">0</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); padding: 12px; border-radius: 12px; text-align: center;">
+                    <div style="font-size: 0.9rem; color: #94a3b8;">Poder Click</div>
+                    <div style="font-size: 1.5rem; font-weight: bold;" id="clickMultiplier">1x</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB DE GENERADORES -->
+        <div id="generadores" class="tab-content active">
+            <div class="generators-container">
+                <h3 class="section-title">
+                    <i class="fas fa-industry"></i> Generadores Automáticos
+                </h3>
+                
+                <div class="generators-grid" id="generatorsGrid">
+                    <!-- Los generadores se cargan aquí -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB DE MEJORAS -->
+        <div id="mejoras" class="tab-content">
+            <div class="upgrades-container">
+                <h3 class="section-title">
+                    <i class="fas fa-arrow-up"></i> Mejoras con Gemas
+                </h3>
+                
+                <div class="upgrades-grid" id="upgradesGrid">
+                    <!-- Las mejoras se cargan aquí -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB DE TIENDA -->
+        <div id="tienda" class="tab-content">
+            <div class="gems-container">
+                <h3 class="section-title">
+                    <i class="fas fa-gem"></i> Tienda de Gemas
+                </h3>
+                
+                <div class="gems-grid" id="gemsGrid">
+                    <!-- Los paquetes de gemas se cargan aquí -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- TAB DE RETIROS -->
+        <div id="retiros" class="tab-content">
+            <div class="withdraw-container">
+                <h3 class="section-title">
+                    <i class="fas fa-wallet"></i> Retirar Fondos
+                </h3>
+                
+                <div class="crypto-info">
+                    <h4 style="color: var(--crypto); margin-bottom: 10px;">
+                        <i class="fas fa-coins"></i> Tu Balance Cripto
+                    </h4>
+                    <div style="font-size: 2rem; font-weight: bold; text-align: center; color: white;">
+                        <span id="withdrawableCrypto">0.000000</span> BTC
+                    </div>
+                    <div style="text-align: center; color: #94a3b8; margin-top: 5px;">
+                        ≈ $<span id="withdrawableUSD">0.00</span> USD
+                    </div>
+                </div>
+                
+                <div class="withdraw-form">
+                    <input type="number" class="form-input" id="withdrawAmount" placeholder="Monto a retirar (mínimo $10)">
+                    
+                    <select class="form-input" id="withdrawMethod">
+                        <option value="paypal">PayPal</option>
+                        <option value="binance">Binance</option>
+                        <option value="skrill">Skrill</option>
+                        <option value="bitcoin">Bitcoin</option>
+                    </select>
+                    
+                    <button class="btn btn-crypto" onclick="requestWithdrawal()">
+                        <i class="fas fa-paper-plane"></i> Solicitar Retiro
+                    </button>
+                </div>
+                
+                <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 12px; margin-top: 20px;">
+                    <h4 style="color: var(--primary); margin-bottom: 10px;">
+                        <i class="fas fa-users"></i> Sistema de Referidos
+                    </h4>
+                    <p style="margin-bottom: 15px;">Invita amigos y gana el 10% de sus ganancias</p>
+                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 0.9rem; color: #94a3b8;">Tu código:</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: white;" id="referralCode">REF-12345</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="copyReferralCode()" style="margin-top: 15px;">
+                        <i class="fas fa-copy"></i> Copiar Código
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- NAVEGACIÓN INFERIOR -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="openTab('generadores')">
+            <i class="fas fa-industry tab-icon"></i>
+            <span>Generadores</span>
+        </button>
+        <button class="tab-btn" onclick="openTab('mejoras')">
+            <i class="fas fa-arrow-up tab-icon"></i>
+            <span>Mejoras</span>
+        </button>
+        <button class="tab-btn" onclick="openTab('tienda')">
+            <i class="fas fa-gem tab-icon"></i>
+            <span>Tienda</span>
+        </button>
+        <button class="tab-btn" onclick="openTab('retiros')">
+            <i class="fas fa-wallet tab-icon"></i>
+            <span>Retiros</span>
+        </button>
+        <button class="tab-btn" onclick="showAdminAccess()">
+            <i class="fas fa-user-shield tab-icon"></i>
+            <span>Admin</span>
+        </button>
+    </div>
+    
+    <!-- NOTIFICACIÓN -->
+    <div class="notification" id="notification"></div>
+    
+    <!-- MODAL DE ADMIN -->
+    <div id="adminModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 20px; padding: 30px; max-width: 400px; width: 100%; border: 3px solid var(--primary);">
+            <h3 style="text-align: center; margin-bottom: 25px; color: var(--primary);">
+                <i class="fas fa-user-shield"></i> Acceso Administrador
+            </h3>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 10px; color: #94a3b8;">Contraseña de administrador</label>
+                <input type="password" id="adminPassword" placeholder="Ingresa la contraseña" 
+                       style="width: 100%; padding: 15px; border-radius: 12px; border: 2px solid var(--primary); background: rgba(0,0,0,0.3); color: white; font-size: 1rem;">
+            </div>
+            
+            <button class="btn btn-primary" onclick="accessAdminPanel()" style="margin-bottom: 15px;">
+                <i class="fas fa-sign-in-alt"></i> Acceder al Panel
+            </button>
+            
+            <button class="btn btn-danger" onclick="closeAdminModal()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ========== ESTADO DEL JUEGO ==========
+        let gameState = {
+            money: 1000,
+            crypto: 0.001234,
+            gems: 50,
+            totalClicks: 0,
+            clickPower: 1,
+            moneyPerSec: 0,
+            multiplier: 1,
+            generators: [
+                { id: 1, name: "Minería Básica", level: 1, cost: 500, income: 10, icon: "fas fa-server" },
+                { id: 2, name: "Trading Bot", level: 1, cost: 1200, income: 25, icon: "fas fa-chart-line" },
+                { id: 3, name: "IA Miner", level: 1, cost: 2500, income: 50, icon: "fas fa-robot" },
+                { id: 4, name: "Farm Cripto", level: 1, cost: 5000, income: 100, icon: "fas fa-microchip" }
+            ],
+            upgrades: [
+                { id: 1, name: "Multiplicador x2", description: "Duplica todos los ingresos por 24h", cost: 100, type: "multiplier", value: 2, purchased: false, icon: "fas fa-bolt" },
+                { id: 2, name: "Auto-Clicker", description: "Hace clics automáticos cada 5s por 1h", cost: 75, type: "autoclicker", value: 1, purchased: false, icon: "fas fa-robot" },
+                { id: 3, name: "Generador Turbo", description: "Triplica producción de generadores", cost: 150, type: "turbo", value: 3, purchased: false, icon: "fas fa-tachometer-alt" },
+                { id: 4, name: "Paquete Premium", description: "Multiplicador x3 + 100 gemas extra", cost: 500, type: "premium", value: 3, purchased: false, icon: "fas fa-crown" }
+            ],
+            gemPackages: [
+                { id: 1, name: "50 Gemas", gems: 50, price: "$1.99", icon: "fas fa-gem" },
+                { id: 2, name: "150 Gemas", gems: 150, price: "$4.99", icon: "fas fa-gem" },
+                { id: 3, name: "500 Gemas", gems: 500, price: "$14.99", icon: "fas fa-gem" },
+                { id: 4, name: "1000 Gemas", gems: 1000, price: "$24.99", icon: "fas fa-crown" }
+            ],
+            activeUpgrades: [],
+            bitcoinPrice: 69250.42
+        };
+        
+        // ========== INICIALIZACIÓN ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            loadGenerators();
+            loadUpgrades();
+            loadGemPackages();
+            updateDisplay();
+            startGameLoop();
+            
+            // Configurar evento de clic
+            const clickBtn = document.getElementById('clickBtn');
+            clickBtn.addEventListener('click', handleClick);
+            
+            // Generar código de referido
+            document.getElementById('referralCode').textContent = 'REF-' + Math.floor(Math.random() * 100000);
+            
+            // Configurar mejora de click
+            document.getElementById('clickUpgradeCost').textContent = calculateClickUpgradeCost();
+        });
+        
+        // ========== MANEJADOR DE CLIC ==========
+        function handleClick() {
+            const earnings = gameState.clickPower * gameState.multiplier;
+            gameState.money += earnings;
+            gameState.crypto += 0.000001 * gameState.multiplier;
+            gameState.totalClicks++;
+            
+            // Efecto visual
+            createClickEffect(event);
+            
+            // Actualizar pantalla
+            updateDisplay();
+        }
+        
+        // ========== EFECTO VISUAL DE CLIC ==========
+        function createClickEffect(event) {
+            const effect = document.createElement('div');
+            effect.className = 'click-effect';
+            effect.textContent = `+${gameState.clickPower * gameState.multiplier}`;
+            effect.style.cssText = `
+                position: fixed;
+                color: var(--warning);
+                font-weight: bold;
+                font-size: 1.5rem;
+                pointer-events: none;
+                z-index: 100;
+                animation: floatUp 1s ease-out forwards;
+            `;
+            
+            // Posicionar cerca del botón de clic
+            const btn = document.getElementById('clickBtn');
+            const rect = btn.getBoundingClientRect();
+            effect.style.left = (rect.left + rect.width/2) + 'px';
+            effect.style.top = (rect.top + rect.height/2) + 'px';
+            
+            document.body.appendChild(effect);
+            
+            // Eliminar después de la animación
+            setTimeout(() => effect.remove(), 1000);
+        }
+        
+        // ========== ACTUALIZAR PANTALLA ==========
+        function updateDisplay() {
+            // Actualizar estadísticas del header
+            document.getElementById('money').textContent = formatMoney(gameState.money);
+            document.getElementById('crypto').textContent = gameState.crypto.toFixed(6);
+            document.getElementById('cryptoValue').textContent = (gameState.crypto * gameState.bitcoinPrice).toFixed(2);
+            document.getElementById('gems').textContent = gameState.gems;
+            document.getElementById('level').textContent = Math.floor(gameState.money / 10000) + 1;
+            document.getElementById('moneyPerSec').textContent = gameState.moneyPerSec;
+            
+            // Actualizar sección de clic
+            document.getElementById('clickPower').textContent = gameState.clickPower * gameState.multiplier;
+            document.getElementById('cpsDisplay').textContent = gameState.moneyPerSec + ' CPS';
+            document.getElementById('totalClicks').textContent = gameState.totalClicks;
+            document.getElementById('clickMultiplier').textContent = gameState.multiplier + 'x';
+            
+            // Actualizar sección de retiros
+            document.getElementById('withdrawableCrypto').textContent = gameState.crypto.toFixed(6);
+            document.getElementById('withdrawableUSD').textContent = (gameState.crypto * gameState.bitcoinPrice).toFixed(2);
+            
+            // Actualizar costos
+            document.getElementById('clickUpgradeCost').textContent = calculateClickUpgradeCost();
+            
+            // Actualizar generadores
+            updateGeneratorsDisplay();
+            
+            // Actualizar mejoras
+            updateUpgradesDisplay();
+        }
+        
+        // ========== CARGAR GENERADORES ==========
+        function loadGenerators() {
+            const grid = document.getElementById('generatorsGrid');
+            grid.innerHTML = '';
+            
+            gameState.generators.forEach(generator => {
+                const card = document.createElement('div');
+                card.className = 'generator-card';
+                card.innerHTML = `
+                    <div class="generator-header">
+                        <i class="${generator.icon} generator-icon"></i>
+                        <div>
+                            <div class="generator-name">${generator.name}</div>
+                            <div class="generator-level">Nivel ${generator.level}</div>
+                        </div>
+                    </div>
+                    <div class="generator-stats">
+                        <div class="generator-income">+$${generator.income}/s</div>
+                        <div class="generator-cost">$${generator.cost}</div>
+                    </div>
+                    <button class="btn btn-success" onclick="buyGenerator(${generator.id})">
+                        <i class="fas fa-shopping-cart"></i> Comprar
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        function updateGeneratorsDisplay() {
+            const cards = document.querySelectorAll('.generator-card');
+            cards.forEach((card, index) => {
+                const generator = gameState.generators[index];
+                const income = card.querySelector('.generator-income');
+                const cost = card.querySelector('.generator-cost');
+                const btn = card.querySelector('button');
+                
+                income.textContent = `+$${generator.income * generator.level}/s`;
+                cost.textContent = `$${generator.cost}`;
+                
+                if (gameState.money >= generator.cost) {
+                    btn.disabled = false;
+                    btn.className = 'btn btn-success';
+                } else {
+                    btn.disabled = true;
+                    btn.className = 'btn btn-success';
+                    btn.style.opacity = '0.5';
+                }
+            });
+        }
+        
+        // ========== COMPRAR GENERADOR ==========
+        function buyGenerator(id) {
+            const generator = gameState.generators.find(g => g.id === id);
+            
+            if (!generator || gameState.money < generator.cost) {
+                showNotification('¡Dinero insuficiente!', 'error');
+                return;
+            }
+            
+            gameState.money -= generator.cost;
+            generator.level++;
+            generator.cost = Math.floor(generator.cost * 1.5);
+            gameState.moneyPerSec += generator.income;
+            
+            showNotification(`¡${generator.name} mejorado a nivel ${generator.level}!`, 'success');
+            updateDisplay();
+        }
+        
+        // ========== MEJORAR CLICK ==========
+        function calculateClickUpgradeCost() {
+            return 50 + (gameState.clickPower * 25);
+        }
+        
+        function buyClickUpgrade() {
+            const cost = calculateClickUpgradeCost();
+            
+            if (gameState.gems >= cost) {
+                gameState.gems -= cost;
+                gameState.clickPower += 1;
+                showNotification('¡Click mejorado! +1 por click', 'success');
+                updateDisplay();
+            } else {
+                showNotification('¡Gemas insuficientes!', 'error');
+            }
+        }
+        
+        // ========== CARGAR MEJORAS ==========
+        function loadUpgrades() {
+            const grid = document.getElementById('upgradesGrid');
+            grid.innerHTML = '';
+            
+            gameState.upgrades.forEach(upgrade => {
+                const card = document.createElement('div');
+                card.className = `upgrade-card ${upgrade.purchased ? 'purchased' : ''}`;
+                card.onclick = () => buyUpgrade(upgrade.id);
+                card.innerHTML = `
+                    <div class="upgrade-header">
+                        <i class="${upgrade.icon} upgrade-icon"></i>
+                        <div class="upgrade-title">${upgrade.name}</div>
+                    </div>
+                    <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 15px;">
+                        ${upgrade.description}
+                    </p>
+                    <div class="upgrade-cost">${upgrade.cost} 💎</div>
+                    ${upgrade.purchased ? 
+                        '<div style="color: var(--secondary); text-align: center; font-weight: bold;"><i class="fas fa-check"></i> Comprado</div>' : 
+                        '<button class="btn btn-warning"><i class="fas fa-shopping-cart"></i> Comprar</button>'
+                    }
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        function updateUpgradesDisplay() {
+            const cards = document.querySelectorAll('.upgrade-card');
+            cards.forEach((card, index) => {
+                const upgrade = gameState.upgrades[index];
+                const costElement = card.querySelector('.upgrade-cost');
+                const btnContainer = card.querySelector('button, div');
+                
+                costElement.textContent = `${upgrade.cost} 💎`;
+                
+                if (upgrade.purchased) {
+                    card.className = 'upgrade-card purchased';
+                    if (btnContainer && btnContainer.tagName === 'BUTTON') {
+                        btnContainer.outerHTML = '<div style="color: var(--secondary); text-align: center; font-weight: bold;"><i class="fas fa-check"></i> Comprado</div>';
+                    }
+                } else {
+                    card.className = 'upgrade-card';
+                    if (gameState.gems >= upgrade.cost) {
+                        card.querySelector('button').disabled = false;
+                        card.querySelector('button').style.opacity = '1';
+                    } else {
+                        card.querySelector('button').disabled = true;
+                        card.querySelector('button').style.opacity = '0.5';
+                    }
+                }
+            });
+        }
+        
+        // ========== COMPRAR MEJORA ==========
+        function buyUpgrade(id) {
+            const upgrade = gameState.upgrades.find(u => u.id === id);
+            
+            if (!upgrade || upgrade.purchased) return;
+            
+            if (gameState.gems >= upgrade.cost) {
+                gameState.gems -= upgrade.cost;
+                upgrade.purchased = true;
+                
+                switch(upgrade.type) {
+                    case 'multiplier':
+                        gameState.multiplier *= upgrade.value;
+                        gameState.activeUpgrades.push({
+                            type: 'multiplier',
+                            expires: Date.now() + (24 * 60 * 60 * 1000)
+                        });
+                        break;
+                    case 'autoclicker':
+                        startAutoClicker(3600);
+                        break;
+                    case 'turbo':
+                        gameState.moneyPerSec *= upgrade.value;
+                        gameState.activeUpgrades.push({
+                            type: 'turbo',
+                            expires: Date.now() + (12 * 60 * 60 * 1000)
+                        });
+                        break;
+                    case 'premium':
+                        gameState.gems += 100;
+                        gameState.multiplier *= upgrade.value;
+                        startAutoClicker(7200);
+                        break;
+                }
+                
+                showNotification(`¡${upgrade.name} activado!`, 'premium');
+                updateDisplay();
+                updateUpgradesDisplay();
+            } else {
+                showNotification('¡Gemas insuficientes!', 'error');
+            }
+        }
+        
+        // ========== AUTO-CLICKER ==========
+        let autoClickerInterval;
+        
+        function startAutoClicker(seconds) {
+            if (autoClickerInterval) {
+                clearInterval(autoClickerInterval);
+            }
+            
+            const clicksPerSecond = 0.2; // 1 clic cada 5 segundos
+            const totalClicks = seconds * clicksPerSecond;
+            let clicksDone = 0;
+            
+            autoClickerInterval = setInterval(() => {
+                if (clicksDone < totalClicks) {
+                    // Simular clic automático
+                    gameState.money += gameState.clickPower * gameState.multiplier;
+                    gameState.totalClicks++;
+                    clicksDone++;
+                    updateDisplay();
+                } else {
+                    clearInterval(autoClickerInterval);
+                    showNotification('Auto-Clicker finalizado');
+                }
+            }, 5000);
+        }
+        
+        // ========== CARGAR PAQUETES DE GEMAS ==========
+        function loadGemPackages() {
+            const grid = document.getElementById('gemsGrid');
+            grid.innerHTML = '';
+            
+            gameState.gemPackages.forEach(pkg => {
+                const card = document.createElement('div');
+                card.className = 'gem-card';
+                card.onclick = () => buyGemPackage(pkg.id);
+                card.innerHTML = `
+                    <i class="${pkg.icon} gem-icon"></i>
+                    <div class="gem-name">${pkg.name}</div>
+                    <div class="gem-price">${pkg.price}</div>
+                    <button class="btn btn-premium">
+                        <i class="fas fa-shopping-cart"></i> Comprar
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        // ========== COMPRAR PAQUETE DE GEMAS ==========
+        function buyGemPackage(id) {
+            const pkg = gameState.gemPackages.find(p => p.id === id);
+            
+            if (!pkg) return;
+            
+            // En un juego real, aquí se integraría con pasarela de pago
+            showNotification(`Compra de ${pkg.name} procesada`, 'info');
+        }
+        
+        // ========== RETIROS ==========
+        function requestWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const method = document.getElementById('withdrawMethod').value;
+            
+            if (!amount || amount < 10) {
+                showNotification('Monto mínimo: $10', 'error');
+                return;
+            }
+            
+            const usdAmount = gameState.crypto * gameState.bitcoinPrice;
+            
+            if (usdAmount < amount) {
+                showNotification('Fondos insuficientes', 'error');
+                return;
+            }
+            
+            // Simular retiro
+            const cryptoAmount = amount / gameState.bitcoinPrice;
+            gameState.crypto -= cryptoAmount;
+            
+            showNotification(`¡Retiro de $${amount} solicitado! Se procesará en 24-48 horas.`, 'success');
+            updateDisplay();
+            
+            // Limpiar formulario
+            document.getElementById('withdrawAmount').value = '';
+        }
+        
+        // ========== REFERIDOS ==========
+        function copyReferralCode() {
+            const code = document.getElementById('referralCode').textContent;
+            navigator.clipboard.writeText(`Usa mi código ${code} en Crypto Clicker para ganar gemas extra!`);
+            showNotification('¡Código copiado al portapapeles!', 'success');
+        }
+        
+        // ========== NAVEGACIÓN ==========
+        function openTab(tabName) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar el tab seleccionado
+            document.getElementById(tabName).classList.add('active');
+            
+            // Actualizar botones de tab
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Activar el botón correspondiente
+            const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => 
+                btn.onclick && btn.onclick.toString().includes(tabName)
+            );
+            
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+        
+        // ========== ADMIN ==========
+        function showAdminAccess() {
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+        
+        function closeAdminModal() {
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+        }
+        
+        function accessAdminPanel() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === 'admin123') {
+                window.location.href = 'admin.html';
+            } else {
+                showNotification('Contraseña incorrecta', 'error');
+            }
+        }
+        
+        // ========== NOTIFICACIONES ==========
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // ========== BUCLE DEL JUEGO ==========
+        function startGameLoop() {
+            setInterval(() => {
+                // Generar ingresos automáticos
+                const passiveIncome = gameState.moneyPerSec;
+                gameState.money += passiveIncome;
+                gameState.crypto += 0.00001 * gameState.multiplier;
+                
+                // Verificar upgrades expirados
+                const now = Date.now();
+                gameState.activeUpgrades = gameState.activeUpgrades.filter(upgrade => {
+                    if (upgrade.expires < now) {
+                        // Revertir efecto
+                        if (upgrade.type === 'multiplier') {
+                            gameState.multiplier /= 2;
+                        } else if (upgrade.type === 'turbo') {
+                            gameState.moneyPerSec /= 3;
+                        }
+                        showNotification(`Mejora ${upgrade.type} ha expirado`);
+                        return false;
+                    }
+                    return true;
+                });
+                
+                updateDisplay();
+            }, 1000);
+        }
+        
+        // ========== FUNCIONES UTILITARIAS ==========
+        function formatMoney(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(2) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return Math.floor(num).toLocaleString();
+        }
+        
+        // Agregar estilos de animación
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes floatUp {
+                0% { transform: translateY(0) scale(1); opacity: 1; }
+                100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
