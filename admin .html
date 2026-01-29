@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Crypto Clicker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f172a;
+            --light: #f8fafc;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, var(--dark), #1e1b4b);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        /* HEADER ADMIN */
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            padding: 25px 20px;
+            border-bottom: 5px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .admin-title {
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .admin-subtitle {
+            text-align: center;
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        /* STATS BAR */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-stat {
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .admin-stat:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        
+        .admin-stat-label {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .admin-stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .admin-stat-change {
+            font-size: 0.85rem;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        /* NAV ADMIN */
+        .admin-nav {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin: 25px;
+            padding: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .admin-nav-btn {
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            color: #cbd5e1;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 160px;
+            justify-content: center;
+        }
+        
+        .admin-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+        
+        .admin-nav-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        /* CONTENT */
+        .admin-content {
+            padding: 0 25px 100px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* TABLES */
+        .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            overflow-x: auto;
+        }
+        
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        th {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 18px;
+            text-align: left;
+            font-weight: 600;
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        td {
+            padding: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        /* STATUS BADGES */
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--secondary);
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+        
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        /* BUTTONS */
+        .btn {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-success {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* BACK TO GAME */
+        .back-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            padding: 15px 30px;
+            background: var(--warning);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+        }
+        
+        /* LOGOUT BUTTON */
+        .logout-btn {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 12px 25px;
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        /* SEARCH BAR */
+        .search-bar {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* FORMS */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, var(--dark), #1e1b4b);
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            border: 3px solid var(--primary);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .admin-title {
+                font-size: 1.5rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .admin-nav-btn {
+                min-width: 140px;
+                padding: 12px 20px;
+            }
+            
+            .table-container {
+                padding: 15px;
+            }
+            
+            .back-btn, .logout-btn {
+                position: static;
+                margin: 10px;
+                width: calc(100% - 20px);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-bar {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-nav {
+                flex-direction: column;
+            }
+            
+            .admin-nav-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ADMIN HEADER -->
+    <div class="admin-header">
+        <div class="admin-title">
+            <i class="fas fa-crown"></i>
+            <div>PANEL DE ADMINISTRACIÓN</div>
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="admin-subtitle">Control total del sistema Crypto Clicker</div>
+    </div>
+    
+    <!-- STATS BAR -->
+    <div class="stats-bar">
+        <div class="admin-stat">
+            <div class="admin-stat-label">Usuarios Totales</div>
+            <div class="admin-stat-value">1,254</div>
+            <div class="admin-stat-change">
+                <i class="fas fa-arrow-up"></i> +25 esta semana
+            </div>
+        </div>
+        
+        <div class="admin-stat">
+            <div class="admin-stat-label">Ingresos Totales</div>
+            <div class="admin-stat-value">$12,580</div>
+            <div class="admin-stat-change">
+                <i class="fas fa-arrow-up"></i> +$1,200 este mes
+            </div>
+        </div>
+        
+        <div class="admin-stat">
+            <div class="admin-stat-label">Clicks Totales</div>
+            <div class="admin-stat-value">2.5M</div>
+            <div class="admin-stat-change">
+                <i class="fas fa-arrow-up"></i> +150K hoy
+            </div>
+        </div>
+        
+        <div class="admin-stat">
+            <div class="admin-stat-label">Pagos Pendientes</div>
+            <div class="admin-stat-value">$3,450</div>
+            <div class="admin-stat-change">
+                <i class="fas fa-exclamation-circle"></i> 15 solicitudes
+            </div>
+        </div>
+    </div>
+    
+    <!-- NAV -->
+    <div class="admin-nav">
+        <button class="admin-nav-btn active" onclick="showSection('overview')">
+            <i class="fas fa-chart-bar"></i> Resumen
+        </button>
+        <button class="admin-nav-btn" onclick="showSection('users')">
+            <i class="fas fa-users"></i> Usuarios
+        </button>
+        <button class="admin-nav-btn" onclick="showSection('payments')">
+            <i class="fas fa-money-bill-wave"></i> Pagos
+        </button>
+        <button class="admin-nav-btn" onclick="showSection('transactions')">
+            <i class="fas fa-exchange-alt"></i> Transacciones
+        </button>
+        <button class="admin-nav-btn" onclick="showSection('settings')">
+            <i class="fas fa-cogs"></i> Configuración
+        </button>
+    </div>
+    
+    <!-- CONTENT -->
+    <div class="admin-content">
+        <!-- OVERVIEW SECTION -->
+        <div id="overview" class="content-section active">
+            <div class="table-container">
+                <h3 class="table-title">
+                    <i class="fas fa-history"></i> Actividad Reciente
+                </h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Acción</th>
+                            <th>Cantidad</th>
+                            <th>IP</th>
+                            <th>Fecha/Hora</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentActivity">
+                        <!-- Se llena con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-container">
+                <h3 class="table-title">
+                    <i class="fas fa-chart-line"></i> Estadísticas del Día
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 15px;">
+                        <div style="font-size: 0.9rem; color: #cbd5e1;">Nuevos Usuarios</div>
+                        <div style="font-size: 2.5rem; font-weight: bold; color: var(--secondary);">12</div>
+                    </div>
+                    <div style="background: rgba(245, 158, 11, 0.1); padding: 20px; border-radius: 15px;">
+                        <div style="font-size: 0.9rem; color: #cbd5e1;">Gemas Vendidas</div>
+                        <div style="font-size: 2.5rem; font-weight: bold; color: var(--warning);">540</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- USERS SECTION -->
+        <div id="users" class="content-section">
+            <div class="table-container">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 class="table-title">
+                        <i class="fas fa-users-cog"></i> Gestión de Usuarios
+                    </h3>
+                    <button class="btn btn-primary" onclick="showAddUserModal()">
+                        <i class="fas fa-user-plus"></i> Agregar Usuario
+                    </button>
+                </div>
+                
+                <input type="text" class="search-bar" placeholder="Buscar usuario..." onkeyup="searchUsers()" id="userSearch">
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Usuario</th>
+                            <th>Email</th>
+                            <th>Nivel</th>
+                            <th>Gemas</th>
+                            <th>Dinero</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        <!-- Se llena con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- PAYMENTS SECTION -->
+        <div id="payments" class="content-section">
+            <div class="table-container">
+                <h3 class="table-title">
+                    <i class="fas fa-hand-holding-usd"></i> Solicitudes de Pago
+                </h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Pago</th>
+                            <th>Usuario</th>
+                            <th>Monto</th>
+                            <th>Método</th>
+                            <th>Solicitado</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentsTable">
+                        <!-- Se llena con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- TRANSACTIONS SECTION -->
+        <div id="transactions" class="content-section">
+            <div class="table-container">
+                <h3 class="table-title">
+                    <i class="fas fa-exchange-alt"></i> Historial de Transacciones
+                </h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Transacción</th>
+                            <th>Usuario</th>
+                            <th>Tipo</th>
+                            <th>Monto</th>
+                            <th>Fecha</th>
+                            <th>Referencia</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable">
+                        <!-- Se llena con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- SETTINGS SECTION -->
+        <div id="settings" class="content-section">
+            <div class="table-container">
+                <h3 class="table-title">
+                    <i class="fas fa-cogs"></i> Configuración del Sistema
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Valor del Click ($)</label>
+                            <input type="number" class="form-input" value="10" step="0.1" min="0.1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Multiplicador de Gemas</label>
+                            <input type="number" class="form-input" value="2.5" step="0.1" min="1">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Comisión de Referidos (%)</label>
+                            <input type="number" class="form-input" value="10" step="1" min="0" max="50">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Retiro Mínimo ($)</label>
+                            <input type="number" class="form-input" value="50" step="5" min="10">
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="saveSettings()" style="margin-top: 20px;">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BACK TO GAME -->
+    <button class="back-btn" onclick="goToGame()">
+        <i class="fas fa-gamepad"></i> Volver al Juego
+    </button>
+    
+    <!-- LOGOUT -->
+    <button class="logout-btn" onclick="logout()">
+        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+    </button>
+    
+    <!-- MODAL AGREGAR USUARIO -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeAddUserModal()">&times;</button>
+            
+            <h3 style="margin-bottom: 30px; text-align: center; color: var(--primary);">
+                <i class="fas fa-user-plus"></i> Agregar Nuevo Usuario
+            </h3>
+            
+            <form id="addUserForm">
+                <div class="form-group">
+                    <label class="form-label">Nombre de Usuario</label>
+                    <input type="text" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-input" required>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                    <div class="form-group">
+                        <label class="form-label">Gemas Iniciales</label>
+                        <input type="number" class="form-input" value="100" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Dinero Inicial ($)</label>
+                        <input type="number" class="form-input" value="1000" min="0" step="100">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 15px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        <i class="fas fa-check"></i> Crear Usuario
+                    </button>
+                    
+                    <button type="button" class="btn btn-danger" onclick="closeAddUserModal()" style="flex: 1;">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATOS DE EJEMPLO ==========
+        const sampleUsers = [
+            { id: 1001, username: "CryptoKing", email: "cryptoking@email.com", level: 25, gems: 1250, money: 12500, status: "active" },
+            { id: 1002, username: "BitcoinQueen", email: "btcqueen@email.com", level: 18, gems: 850, money: 8200, status: "active" },
+            { id: 1003, username: "EthereumMaster", email: "ethmaster@email.com", level: 32, gems: 2100, money: 21500, status: "active" },
+            { id: 1004, username: "DogecoinFan", email: "dogefan@email.com", level: 12, gems: 420, money: 3800, status: "inactive" }
+        ];
+        
+        const samplePayments = [
+            { id: "PAY-2024-001", user: "CryptoKing", amount: "$250", method: "PayPal", requested: "2024-02-28 14:30", status: "pending" },
+            { id: "PAY-2024-002", user: "BitcoinQueen", amount: "$150", method: "Binance", requested: "2024-02-28 11:15", status: "approved" },
+            { id: "PAY-2024-003", user: "EthereumMaster", amount: "$500", method: "Bitcoin", requested: "2024-02-27 16:45", status: "pending" }
+        ];
+        
+        const sampleTransactions = [
+            { id: "TX-1001", user: "CryptoKing", type: "Compra de gemas", amount: "$9.99", date: "2024-02-28 15:30", reference: "GEM-50", status: "completed" },
+            { id: "TX-1002", user: "BitcoinQueen", type: "Retiro", amount: "$150", date: "2024-02-28 11:15", reference: "PAY-002", status: "processing" },
+            { id: "TX-1003", user: "EthereumMaster", type: "Recompensa", amount: "$25", date: "2024-02-28 10:05", reference: "MISSION-5", status: "completed" }
+        ];
+        
+        const sampleActivity = [
+            { user: "CryptoKing", action: "Compra de gemas", amount: "$9.99", ip: "192.168.1.101", datetime: "Hoy 15:30", status: "success" },
+            { user: "BitcoinQueen", action: "Solicitud de retiro", amount: "$150", ip: "192.168.1.102", datetime: "Hoy 11:15", status: "pending" },
+            { user: "EthereumMaster", action: "Completó misión", amount: "25 gemas", ip: "192.168.1.103", datetime: "Hoy 10:05", status: "success" }
+        ];
+        
+        // ========== INICIALIZACIÓN ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOverview();
+            loadUsers();
+            loadPayments();
+            loadTransactions();
+            
+            // Configurar formulario de agregar usuario
+            document.getElementById('addUserForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addNewUser();
+            });
+        });
+        
+        // ========== NAVEGACIÓN ==========
+        function showSection(sectionId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.admin-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Activar el botón correspondiente
+            const activeBtn = Array.from(document.querySelectorAll('.admin-nav-btn')).find(btn => 
+                btn.onclick && btn.onclick.toString().includes(sectionId)
+            );
+            
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+        
+        // ========== CARGAR DATOS ==========
+        function loadOverview() {
+            const table = document.getElementById('recentActivity');
+            table.innerHTML = '';
+            
+            sampleActivity.forEach(activity => {
+                const row = table.insertRow();
+                row.innerHTML = `
+                    <td>${activity.user}</td>
+                    <td>${activity.action}</td>
+                    <td>${activity.amount}</td>
+                    <td><code>${activity.ip}</code></td>
+                    <td>${activity.datetime}</td>
+                    <td><span class="status-badge ${activity.status === 'success' ? 'status-active' : 'status-pending'}">${activity.status}</span></td>
+                `;
+            });
+        }
+        
+        function loadUsers() {
+            const table = document.getElementById('usersTable');
+            table.innerHTML = '';
+            
+            sampleUsers.forEach(user => {
+                const row = table.insertRow();
+                
+                let statusClass = 'status-active';
+                if (user.status === 'inactive') statusClass = 'status-inactive';
+                
+                row.innerHTML = `
+                    <td>#${user.id}</td>
+                    <td><strong>${user.username}</strong></td>
+                    <td>${user.email}</td>
+                    <td>${user.level}</td>
+                    <td>${user.gems.toLocaleString()} 💎</td>
+                    <td>$${user.money.toLocaleString()}</td>
+                    <td><span class="status-badge ${statusClass}">${user.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editUser(${user.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+            });
+        }
+        
+        function loadPayments() {
+            const table = document.getElementById('paymentsTable');
+            table.innerHTML = '';
+            
+            samplePayments.forEach(payment => {
+                const row = table.insertRow();
+                
+                let statusClass = 'status-pending';
+                let statusText = 'Pendiente';
+                
+                if (payment.status === 'approved') {
+                    statusClass = 'status-active';
+                    statusText = 'Aprobado';
+                }
+                
+                row.innerHTML = `
+                    <td><strong>${payment.id}</strong></td>
+                    <td>${payment.user}</td>
+                    <td>${payment.amount}</td>
+                    <td>${payment.method}</td>
+                    <td>${payment.requested}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        ${payment.status === 'pending' ? `
+                            <button class="btn btn-sm btn-success" onclick="approvePayment('${payment.id}')">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="rejectPayment('${payment.id}')">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-sm btn-primary" onclick="viewPayment('${payment.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+            });
+        }
+        
+        function loadTransactions() {
+            const table = document.getElementById('transactionsTable');
+            table.innerHTML = '';
+            
+            sampleTransactions.forEach(transaction => {
+                const row = table.insertRow();
+                
+                row.innerHTML = `
+                    <td><code>${transaction.id}</code></td>
+                    <td>${transaction.user}</td>
+                    <td>${transaction.type}</td>
+                    <td><strong>${transaction.amount}</strong></td>
+                    <td>${transaction.date}</td>
+                    <td><small>${transaction.reference}</small></td>
+                    <td><span class="status-badge status-active">${transaction.status}</span></td>
+                `;
+            });
+        }
+        
+        // ========== BUSCAR USUARIOS ==========
+        function searchUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+            const table = document.getElementById('usersTable');
+            
+            // Filtrar usuarios
+            const filteredUsers = sampleUsers.filter(user => 
+                user.username.toLowerCase().includes(searchTerm) ||
+                user.email.toLowerCase().includes(searchTerm) ||
+                user.id.toString().includes(searchTerm)
+            );
+            
+            // Actualizar tabla
+            table.innerHTML = '';
+            filteredUsers.forEach(user => {
+                const row = table.insertRow();
+                
+                let statusClass = 'status-active';
+                if (user.status === 'inactive') statusClass = 'status-inactive';
+                
+                row.innerHTML = `
+                    <td>#${user.id}</td>
+                    <td><strong>${user.username}</strong></td>
+                    <td>${user.email}</td>
+                    <td>${user.level}</td>
+                    <td>${user.gems.toLocaleString()} 💎</td>
+                    <td>$${user.money.toLocaleString()}</td>
+                    <td><span class="status-badge ${statusClass}">${user.status}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary" onclick="editUser(${user.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+            });
+        }
+        
+        // ========== GESTIÓN DE USUARIOS ==========
+        function showAddUserModal() {
+            document.getElementById('addUserModal').classList.add('active');
+        }
+        
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').classList.remove('active');
+            document.getElementById('addUserForm').reset();
+        }
+        
+        function addNewUser() {
+            const form = document.getElementById('addUserForm');
+            const newId = Math.max(...sampleUsers.map(u => u.id)) + 1;
+            
+            sampleUsers.unshift({
+                id: newId,
+                username: form[0].value,
+                email: form[1].value,
+                level: 1,
+                gems: parseInt(form[3].value) || 100,
+                money: parseInt(form[4].value) || 1000,
+                status: 'active'
+            });
+            
+            showNotification('Usuario agregado correctamente', 'success');
+            closeAddUserModal();
+            loadUsers();
+        }
+        
+        function editUser(userId) {
+            alert(`Editar usuario: ${userId}`);
+        }
+        
+        function deleteUser(userId) {
+            if (confirm('¿Estás seguro de eliminar este usuario?')) {
+                const index = sampleUsers.findIndex(u => u.id === userId);
+                if (index !== -1) {
+                    sampleUsers.splice(index, 1);
+                    showNotification('Usuario eliminado', 'success');
+                    loadUsers();
+                }
+            }
+        }
+        
+        // ========== GESTIÓN DE PAGOS ==========
+        function approvePayment(paymentId) {
+            const payment = samplePayments.find(p => p.id === paymentId);
+            if (payment) {
+                payment.status = 'approved';
+                showNotification(`Pago ${paymentId} aprobado`, 'success');
+                loadPayments();
+            }
+        }
+        
+        function rejectPayment(paymentId) {
+            const payment = samplePayments.find(p => p.id === paymentId);
+            if (payment) {
+                payment.status = 'rejected';
+                showNotification(`Pago ${paymentId} rechazado`, 'success');
+                loadPayments();
+            }
+        }
+        
+        function viewPayment(paymentId) {
+            alert(`Ver pago: ${paymentId}`);
+        }
+        
+        // ========== CONFIGURACIÓN ==========
+        function saveSettings() {
+            showNotification('Configuración guardada correctamente', 'success');
+        }
+        
+        // ========== NAVEGACIÓN ==========
+        function goToGame() {
+            window.location.href = 'index.html';
+        }
+        
+        function logout() {
+            if (confirm('¿Cerrar sesión del panel de administración?')) {
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // ========== UTILIDADES ==========
+        function showNotification(message, type = 'success') {
+            // Crear notificación
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'success' ? 'var(--secondary)' : 'var(--primary)'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 12px;
+                z-index: 10000;
+                animation: slideDown 0.5s ease;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+                max-width: 300px;
+                font-weight: bold;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.5s ease';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+        
+        // Agregar estilos de animación
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideDown {
+                from { transform: translate(-50%, -20px); opacity: 0; }
+                to { transform: translate(-50%, 0); opacity: 1; }
+            }
+            
+            @keyframes slideOut {
+                from { transform: translate(-50%, 0); opacity: 1; }
+                to { transform: translate(-50%, -20px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
