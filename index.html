@@ -555,6 +555,24 @@
         .notification.info { background: var(--primary); }
         .notification.premium { background: var(--premium); color: #1e293b; }
         
+        /* ADMIN BUTTON */
+        .admin-btn {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px 15px;
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+            border: 2px solid #8b5cf6;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 1001;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .click-button {
@@ -569,11 +587,22 @@
             .gems-grid {
                 grid-template-columns: 1fr 1fr;
             }
+            
+            .header {
+                padding: 12px 10px;
+            }
         }
         
         @media (max-width: 480px) {
             .header {
                 padding: 12px;
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .header .stat-box:last-child {
+                grid-column: span 2;
+                width: 50%;
+                margin: 0 auto;
             }
             
             .stat-value {
@@ -592,10 +621,19 @@
             .gems-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .quick-upgrades {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- ADMIN BUTTON -->
+    <button class="admin-btn" onclick="window.location.href='admin.html'">
+        <i class="fas fa-crown"></i> Admin
+    </button>
+    
     <!-- HEADER CON ESTADÍSTICAS -->
     <div class="header">
         <div class="stat-box">
@@ -690,7 +728,7 @@
                 </h3>
                 
                 <div class="gems-grid" id="gemsGrid">
-                    <!-- Los paquetes de gemas se cargan aquí -->
+                    <!-- Las ofertas de gemas se cargan aquí -->
                 </div>
             </div>
         </div>
@@ -699,54 +737,49 @@
         <div id="retiros" class="tab-content">
             <div class="withdraw-container">
                 <h3 class="section-title">
-                    <i class="fas fa-wallet"></i> Retirar Fondos
+                    <i class="fas fa-wallet"></i> Retirar Dinero
                 </h3>
                 
                 <div class="crypto-info">
-                    <h4 style="color: var(--crypto); margin-bottom: 10px;">
-                        <i class="fas fa-coins"></i> Tu Balance Cripto
-                    </h4>
-                    <div style="font-size: 2rem; font-weight: bold; text-align: center; color: white;">
-                        <span id="withdrawableCrypto">0.000000</span> BTC
+                    <div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 10px; color: var(--crypto);">
+                        💰 Saldo Disponible: $<span id="availableBalance">0.00</span>
                     </div>
-                    <div style="text-align: center; color: #94a3b8; margin-top: 5px;">
-                        ≈ $<span id="withdrawableUSD">0.00</span> USD
+                    <div style="font-size: 0.9rem; color: #94a3b8;">
+                        Mínimo para retiro: $5.00
                     </div>
                 </div>
                 
                 <div class="withdraw-form">
-                    <input type="number" class="form-input" id="withdrawAmount" placeholder="Monto a retirar (mínimo $10)">
-                    
+                    <input type="number" class="form-input" id="withdrawAmount" placeholder="Monto a retirar ($)" min="5" step="0.1">
                     <select class="form-input" id="withdrawMethod">
+                        <option value="">Seleccionar método de pago</option>
                         <option value="paypal">PayPal</option>
                         <option value="binance">Binance</option>
+                        <option value="transferencia">Transferencia Bancaria</option>
                         <option value="skrill">Skrill</option>
-                        <option value="bitcoin">Bitcoin</option>
                     </select>
+                    <input type="text" class="form-input" id="withdrawEmail" placeholder="Email o wallet">
                     
                     <button class="btn btn-crypto" onclick="requestWithdrawal()">
                         <i class="fas fa-paper-plane"></i> Solicitar Retiro
                     </button>
                 </div>
                 
-                <div style="background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 12px; margin-top: 20px;">
-                    <h4 style="color: var(--primary); margin-bottom: 10px;">
-                        <i class="fas fa-users"></i> Sistema de Referidos
+                <div style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 15px;">
+                    <h4 style="color: var(--warning); margin-bottom: 15px;">
+                        <i class="fas fa-history"></i> Historial de Retiros
                     </h4>
-                    <p style="margin-bottom: 15px;">Invita amigos y gana el 10% de sus ganancias</p>
-                    <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center;">
-                        <div style="font-size: 0.9rem; color: #94a3b8;">Tu código:</div>
-                        <div style="font-size: 1.5rem; font-weight: bold; color: white;" id="referralCode">REF-12345</div>
+                    <div id="withdrawalHistory" style="font-size: 0.9rem;">
+                        <div style="text-align: center; color: #94a3b8; padding: 20px;">
+                            No hay retiros aún
+                        </div>
                     </div>
-                    <button class="btn btn-primary" onclick="copyReferralCode()" style="margin-top: 15px;">
-                        <i class="fas fa-copy"></i> Copiar Código
-                    </button>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- NAVEGACIÓN INFERIOR -->
+    <!-- TABS INFERIORES -->
     <div class="tabs">
         <button class="tab-btn active" onclick="openTab('generadores')">
             <i class="fas fa-industry tab-icon"></i>
@@ -757,545 +790,557 @@
             <span>Mejoras</span>
         </button>
         <button class="tab-btn" onclick="openTab('tienda')">
-            <i class="fas fa-gem tab-icon"></i>
+            <i class="fas fa-shopping-cart tab-icon"></i>
             <span>Tienda</span>
         </button>
         <button class="tab-btn" onclick="openTab('retiros')">
             <i class="fas fa-wallet tab-icon"></i>
             <span>Retiros</span>
         </button>
-        <button class="tab-btn" onclick="showAdminAccess()">
-            <i class="fas fa-user-shield tab-icon"></i>
-            <span>Admin</span>
-        </button>
     </div>
     
-    <!-- NOTIFICACIÓN -->
-    <div class="notification" id="notification"></div>
-    
-    <!-- MODAL DE ADMIN -->
-    <div id="adminModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
-        <div style="background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 20px; padding: 30px; max-width: 400px; width: 100%; border: 3px solid var(--primary);">
-            <h3 style="text-align: center; margin-bottom: 25px; color: var(--primary);">
-                <i class="fas fa-user-shield"></i> Acceso Administrador
-            </h3>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 10px; color: #94a3b8;">Contraseña de administrador</label>
-                <input type="password" id="adminPassword" placeholder="Ingresa la contraseña" 
-                       style="width: 100%; padding: 15px; border-radius: 12px; border: 2px solid var(--primary); background: rgba(0,0,0,0.3); color: white; font-size: 1rem;">
-            </div>
-            
-            <button class="btn btn-primary" onclick="accessAdminPanel()" style="margin-bottom: 15px;">
-                <i class="fas fa-sign-in-alt"></i> Acceder al Panel
-            </button>
-            
-            <button class="btn btn-danger" onclick="closeAdminModal()">
-                <i class="fas fa-times"></i> Cancelar
-            </button>
-        </div>
-    </div>
-
     <script>
-        // ========== ESTADO DEL JUEGO ==========
-        let gameState = {
-            money: 1000,
-            crypto: 0.001234,
-            gems: 50,
-            totalClicks: 0,
-            clickPower: 1,
-            moneyPerSec: 0,
-            multiplier: 1,
-            generators: [
-                { id: 1, name: "Minería Básica", level: 1, cost: 500, income: 10, icon: "fas fa-server" },
-                { id: 2, name: "Trading Bot", level: 1, cost: 1200, income: 25, icon: "fas fa-chart-line" },
-                { id: 3, name: "IA Miner", level: 1, cost: 2500, income: 50, icon: "fas fa-robot" },
-                { id: 4, name: "Farm Cripto", level: 1, cost: 5000, income: 100, icon: "fas fa-microchip" }
-            ],
-            upgrades: [
-                { id: 1, name: "Multiplicador x2", description: "Duplica todos los ingresos por 24h", cost: 100, type: "multiplier", value: 2, purchased: false, icon: "fas fa-bolt" },
-                { id: 2, name: "Auto-Clicker", description: "Hace clics automáticos cada 5s por 1h", cost: 75, type: "autoclicker", value: 1, purchased: false, icon: "fas fa-robot" },
-                { id: 3, name: "Generador Turbo", description: "Triplica producción de generadores", cost: 150, type: "turbo", value: 3, purchased: false, icon: "fas fa-tachometer-alt" },
-                { id: 4, name: "Paquete Premium", description: "Multiplicador x3 + 100 gemas extra", cost: 500, type: "premium", value: 3, purchased: false, icon: "fas fa-crown" }
-            ],
-            gemPackages: [
-                { id: 1, name: "50 Gemas", gems: 50, price: "$1.99", icon: "fas fa-gem" },
-                { id: 2, name: "150 Gemas", gems: 150, price: "$4.99", icon: "fas fa-gem" },
-                { id: 3, name: "500 Gemas", gems: 500, price: "$14.99", icon: "fas fa-gem" },
-                { id: 4, name: "1000 Gemas", gems: 1000, price: "$24.99", icon: "fas fa-crown" }
-            ],
-            activeUpgrades: [],
-            bitcoinPrice: 69250.42
-        };
+        // Variables del juego
+        let money = 0;
+        let crypto = 0;
+        let gems = 0;
+        let level = 1;
+        let totalClicks = 0;
+        let clickPower = 1;
+        let clickUpgradeCost = 50;
+        let moneyPerSecond = 0;
+        let cryptoValue = 50000; // Valor aproximado de BTC
         
-        // ========== INICIALIZACIÓN ==========
-        document.addEventListener('DOMContentLoaded', function() {
+        // Generadores
+        const generators = [
+            { id: 1, name: "Mineros Básicos", icon: "fas fa-server", level: 0, baseCost: 10, baseIncome: 0.1, income: 0, cost: 10 },
+            { id: 2, name: "Granjas de GPU", icon: "fas fa-microchip", level: 0, baseCost: 50, baseIncome: 0.5, income: 0, cost: 50 },
+            { id: 3, name: "ASIC Miners", icon: "fas fa-hdd", level: 0, baseCost: 250, baseIncome: 2.5, income: 0, cost: 250 },
+            { id: 4, name: "Nodos Validadores", icon: "fas fa-network-wired", level: 0, baseCost: 1000, baseIncome: 10, income: 0, cost: 1000 },
+            { id: 5, name: "Centro de Datos", icon: "fas fa-building", level: 0, baseCost: 5000, baseIncome: 50, income: 0, cost: 5000 },
+            { id: 6, name: "Red Blockchain", icon: "fas fa-globe", level: 0, baseCost: 25000, baseIncome: 250, income: 0, cost: 25000 }
+        ];
+        
+        // Mejoras
+        const upgrades = [
+            { id: 1, name: "Mouse Dorado", icon: "fas fa-mouse", description: "Doble dinero por click", cost: 100, purchased: false, multiplier: 2 },
+            { id: 2, name: "Tarjeta Gráfica RTX", icon: "fas fa-gamepad", description: "Triple crypto por click", cost: 250, purchased: false, multiplier: 3 },
+            { id: 3, name: "Cooler RGB", icon: "fas fa-fan", description: "+10% eficiencia generadores", cost: 500, purchased: false, multiplier: 1.1 },
+            { id: 4, name: "Fuente de Poder", icon: "fas fa-bolt", description: "Click automático cada 5s", cost: 1000, purchased: false },
+            { id: 5, name: "Antivirus Premium", icon: "fas fa-shield-alt", description: "Protege tus ganancias", cost: 2000, purchased: false }
+        ];
+        
+        // Ofertas de gemas
+        const gemOffers = [
+            { id: 1, name: "Paquete Básico", icon: "fas fa-gem", gems: 50, price: "$0.99", bonus: 0 },
+            { id: 2, name: "Paquete Plata", icon: "fas fa-gem", gems: 150, price: "$2.99", bonus: 10 },
+            { id: 3, name: "Paquete Oro", icon: "fas fa-crown", gems: 500, price: "$9.99", bonus: 50 },
+            { id: 4, name: "Paquete Platino", icon: "fas fa-gem", gems: 1200, price: "$19.99", bonus: 200 },
+            { id: 5, name: "Paquete Diamante", icon: "fas fa-gem", gems: 3000, price: "$49.99", bonus: 500 }
+        ];
+        
+        // Historial de retiros
+        let withdrawalHistory = [];
+        
+        // Inicializar juego
+        function initGame() {
+            loadGame();
+            updateUI();
             loadGenerators();
             loadUpgrades();
-            loadGemPackages();
-            updateDisplay();
-            startGameLoop();
+            loadGemOffers();
             
-            // Configurar evento de clic
-            const clickBtn = document.getElementById('clickBtn');
-            clickBtn.addEventListener('click', handleClick);
-            
-            // Generar código de referido
-            document.getElementById('referralCode').textContent = 'REF-' + Math.floor(Math.random() * 100000);
-            
-            // Configurar mejora de click
-            document.getElementById('clickUpgradeCost').textContent = calculateClickUpgradeCost();
-        });
+            // Iniciar loop del juego
+            setInterval(gameLoop, 100);
+            setInterval(saveGame, 30000); // Guardar cada 30 segundos
+        }
         
-        // ========== MANEJADOR DE CLIC ==========
+        // Loop principal del juego
+        function gameLoop() {
+            // Generar ingresos automáticos
+            let totalIncome = 0;
+            generators.forEach(gen => {
+                if (gen.level > 0) {
+                    const income = gen.income;
+                    money += income / 10; // Dividido por 10 porque se ejecuta 10 veces por segundo
+                    totalIncome += income;
+                }
+            });
+            
+            moneyPerSecond = totalIncome;
+            
+            // Actualizar cripto basado en generadores
+            if (moneyPerSecond > 0) {
+                crypto += (moneyPerSecond * 0.000001) / 10;
+            }
+            
+            // Auto-click si se tiene la mejora
+            if (upgrades[3].purchased) {
+                const autoClickUpgrade = upgrades.find(u => u.id === 4);
+                if (autoClickUpgrade && autoClickUpgrade.purchased) {
+                    // Auto-click cada 5 segundos
+                    if (Math.floor(Date.now() / 1000) % 5 === 0) {
+                        handleClick();
+                    }
+                }
+            }
+            
+            updateUI();
+        }
+        
+        // Manejar click
         function handleClick() {
-            const earnings = gameState.clickPower * gameState.multiplier;
-            gameState.money += earnings;
-            gameState.crypto += 0.000001 * gameState.multiplier;
-            gameState.totalClicks++;
+            money += clickPower;
+            crypto += 0.000001 * clickPower;
+            totalClicks++;
+            
+            // Actualizar UI inmediatamente
+            updateUI();
             
             // Efecto visual
-            createClickEffect(event);
+            const clickBtn = document.getElementById('clickBtn');
+            clickBtn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                clickBtn.style.transform = 'scale(1)';
+            }, 100);
             
-            // Actualizar pantalla
-            updateDisplay();
-        }
-        
-        // ========== EFECTO VISUAL DE CLIC ==========
-        function createClickEffect(event) {
-            const effect = document.createElement('div');
-            effect.className = 'click-effect';
-            effect.textContent = `+${gameState.clickPower * gameState.multiplier}`;
-            effect.style.cssText = `
-                position: fixed;
-                color: var(--warning);
-                font-weight: bold;
-                font-size: 1.5rem;
-                pointer-events: none;
-                z-index: 100;
-                animation: floatUp 1s ease-out forwards;
-            `;
-            
-            // Posicionar cerca del botón de clic
-            const btn = document.getElementById('clickBtn');
-            const rect = btn.getBoundingClientRect();
-            effect.style.left = (rect.left + rect.width/2) + 'px';
-            effect.style.top = (rect.top + rect.height/2) + 'px';
-            
-            document.body.appendChild(effect);
-            
-            // Eliminar después de la animación
-            setTimeout(() => effect.remove(), 1000);
-        }
-        
-        // ========== ACTUALIZAR PANTALLA ==========
-        function updateDisplay() {
-            // Actualizar estadísticas del header
-            document.getElementById('money').textContent = formatMoney(gameState.money);
-            document.getElementById('crypto').textContent = gameState.crypto.toFixed(6);
-            document.getElementById('cryptoValue').textContent = (gameState.crypto * gameState.bitcoinPrice).toFixed(2);
-            document.getElementById('gems').textContent = gameState.gems;
-            document.getElementById('level').textContent = Math.floor(gameState.money / 10000) + 1;
-            document.getElementById('moneyPerSec').textContent = gameState.moneyPerSec;
-            
-            // Actualizar sección de clic
-            document.getElementById('clickPower').textContent = gameState.clickPower * gameState.multiplier;
-            document.getElementById('cpsDisplay').textContent = gameState.moneyPerSec + ' CPS';
-            document.getElementById('totalClicks').textContent = gameState.totalClicks;
-            document.getElementById('clickMultiplier').textContent = gameState.multiplier + 'x';
-            
-            // Actualizar sección de retiros
-            document.getElementById('withdrawableCrypto').textContent = gameState.crypto.toFixed(6);
-            document.getElementById('withdrawableUSD').textContent = (gameState.crypto * gameState.bitcoinPrice).toFixed(2);
-            
-            // Actualizar costos
-            document.getElementById('clickUpgradeCost').textContent = calculateClickUpgradeCost();
-            
-            // Actualizar generadores
-            updateGeneratorsDisplay();
-            
-            // Actualizar mejoras
-            updateUpgradesDisplay();
-        }
-        
-        // ========== CARGAR GENERADORES ==========
-        function loadGenerators() {
-            const grid = document.getElementById('generatorsGrid');
-            grid.innerHTML = '';
-            
-            gameState.generators.forEach(generator => {
-                const card = document.createElement('div');
-                card.className = 'generator-card';
-                card.innerHTML = `
-                    <div class="generator-header">
-                        <i class="${generator.icon} generator-icon"></i>
-                        <div>
-                            <div class="generator-name">${generator.name}</div>
-                            <div class="generator-level">Nivel ${generator.level}</div>
-                        </div>
-                    </div>
-                    <div class="generator-stats">
-                        <div class="generator-income">+$${generator.income}/s</div>
-                        <div class="generator-cost">$${generator.cost}</div>
-                    </div>
-                    <button class="btn btn-success" onclick="buyGenerator(${generator.id})">
-                        <i class="fas fa-shopping-cart"></i> Comprar
-                    </button>
-                `;
-                grid.appendChild(card);
-            });
-        }
-        
-        function updateGeneratorsDisplay() {
-            const cards = document.querySelectorAll('.generator-card');
-            cards.forEach((card, index) => {
-                const generator = gameState.generators[index];
-                const income = card.querySelector('.generator-income');
-                const cost = card.querySelector('.generator-cost');
-                const btn = card.querySelector('button');
-                
-                income.textContent = `+$${generator.income * generator.level}/s`;
-                cost.textContent = `$${generator.cost}`;
-                
-                if (gameState.money >= generator.cost) {
-                    btn.disabled = false;
-                    btn.className = 'btn btn-success';
-                } else {
-                    btn.disabled = true;
-                    btn.className = 'btn btn-success';
-                    btn.style.opacity = '0.5';
-                }
-            });
-        }
-        
-        // ========== COMPRAR GENERADOR ==========
-        function buyGenerator(id) {
-            const generator = gameState.generators.find(g => g.id === id);
-            
-            if (!generator || gameState.money < generator.cost) {
-                showNotification('¡Dinero insuficiente!', 'error');
-                return;
+            // Posible drop de gema (1% de chance)
+            if (Math.random() < 0.01) {
+                gems++;
+                showNotification('¡Encontraste una gema! 💎', 'premium');
             }
-            
-            gameState.money -= generator.cost;
-            generator.level++;
-            generator.cost = Math.floor(generator.cost * 1.5);
-            gameState.moneyPerSec += generator.income;
-            
-            showNotification(`¡${generator.name} mejorado a nivel ${generator.level}!`, 'success');
-            updateDisplay();
         }
         
-        // ========== MEJORAR CLICK ==========
-        function calculateClickUpgradeCost() {
-            return 50 + (gameState.clickPower * 25);
-        }
-        
+        // Comprar mejora de click
         function buyClickUpgrade() {
-            const cost = calculateClickUpgradeCost();
-            
-            if (gameState.gems >= cost) {
-                gameState.gems -= cost;
-                gameState.clickPower += 1;
-                showNotification('¡Click mejorado! +1 por click', 'success');
-                updateDisplay();
+            if (money >= clickUpgradeCost) {
+                money -= clickUpgradeCost;
+                clickPower++;
+                clickUpgradeCost = Math.floor(clickUpgradeCost * 1.5);
+                showNotification('¡Click mejorado! 🚀', 'success');
+                updateUI();
             } else {
-                showNotification('¡Gemas insuficientes!', 'error');
+                showNotification('¡No tienes suficiente dinero! 💸', 'error');
             }
         }
         
-        // ========== CARGAR MEJORAS ==========
-        function loadUpgrades() {
-            const grid = document.getElementById('upgradesGrid');
-            grid.innerHTML = '';
+        // Comprar generador
+        function buyGenerator(id) {
+            const generator = generators.find(g => g.id === id);
+            if (!generator) return;
             
-            gameState.upgrades.forEach(upgrade => {
-                const card = document.createElement('div');
-                card.className = `upgrade-card ${upgrade.purchased ? 'purchased' : ''}`;
-                card.onclick = () => buyUpgrade(upgrade.id);
-                card.innerHTML = `
-                    <div class="upgrade-header">
-                        <i class="${upgrade.icon} upgrade-icon"></i>
-                        <div class="upgrade-title">${upgrade.name}</div>
-                    </div>
-                    <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 15px;">
-                        ${upgrade.description}
-                    </p>
-                    <div class="upgrade-cost">${upgrade.cost} 💎</div>
-                    ${upgrade.purchased ? 
-                        '<div style="color: var(--secondary); text-align: center; font-weight: bold;"><i class="fas fa-check"></i> Comprado</div>' : 
-                        '<button class="btn btn-warning"><i class="fas fa-shopping-cart"></i> Comprar</button>'
-                    }
-                `;
-                grid.appendChild(card);
-            });
-        }
-        
-        function updateUpgradesDisplay() {
-            const cards = document.querySelectorAll('.upgrade-card');
-            cards.forEach((card, index) => {
-                const upgrade = gameState.upgrades[index];
-                const costElement = card.querySelector('.upgrade-cost');
-                const btnContainer = card.querySelector('button, div');
+            if (money >= generator.cost) {
+                money -= generator.cost;
+                generator.level++;
+                generator.income = generator.baseIncome * generator.level;
                 
-                costElement.textContent = `${upgrade.cost} 💎`;
-                
-                if (upgrade.purchased) {
-                    card.className = 'upgrade-card purchased';
-                    if (btnContainer && btnContainer.tagName === 'BUTTON') {
-                        btnContainer.outerHTML = '<div style="color: var(--secondary); text-align: center; font-weight: bold;"><i class="fas fa-check"></i> Comprado</div>';
-                    }
-                } else {
-                    card.className = 'upgrade-card';
-                    if (gameState.gems >= upgrade.cost) {
-                        card.querySelector('button').disabled = false;
-                        card.querySelector('button').style.opacity = '1';
-                    } else {
-                        card.querySelector('button').disabled = true;
-                        card.querySelector('button').style.opacity = '0.5';
-                    }
+                // Aplicar mejora de eficiencia si se tiene
+                const efficiencyUpgrade = upgrades.find(u => u.id === 3);
+                if (efficiencyUpgrade && efficiencyUpgrade.purchased) {
+                    generator.income *= efficiencyUpgrade.multiplier;
                 }
-            });
+                
+                generator.cost = Math.floor(generator.baseCost * Math.pow(1.15, generator.level));
+                showNotification(`¡${generator.name} comprado! 🏭`, 'success');
+                loadGenerators();
+                updateUI();
+            } else {
+                showNotification('¡No tienes suficiente dinero! 💸', 'error');
+            }
         }
         
-        // ========== COMPRAR MEJORA ==========
+        // Comprar mejora
         function buyUpgrade(id) {
-            const upgrade = gameState.upgrades.find(u => u.id === id);
-            
+            const upgrade = upgrades.find(u => u.id === id);
             if (!upgrade || upgrade.purchased) return;
             
-            if (gameState.gems >= upgrade.cost) {
-                gameState.gems -= upgrade.cost;
+            if (gems >= upgrade.cost) {
+                gems -= upgrade.cost;
                 upgrade.purchased = true;
                 
-                switch(upgrade.type) {
-                    case 'multiplier':
-                        gameState.multiplier *= upgrade.value;
-                        gameState.activeUpgrades.push({
-                            type: 'multiplier',
-                            expires: Date.now() + (24 * 60 * 60 * 1000)
+                // Aplicar efectos de mejora
+                if (upgrade.multiplier) {
+                    if (upgrade.id === 1) {
+                        clickPower *= upgrade.multiplier;
+                    } else if (upgrade.id === 3) {
+                        // Recalcular ingresos de generadores
+                        generators.forEach(gen => {
+                            if (gen.level > 0) {
+                                gen.income = gen.baseIncome * gen.level * upgrade.multiplier;
+                            }
                         });
-                        break;
-                    case 'autoclicker':
-                        startAutoClicker(3600);
-                        break;
-                    case 'turbo':
-                        gameState.moneyPerSec *= upgrade.value;
-                        gameState.activeUpgrades.push({
-                            type: 'turbo',
-                            expires: Date.now() + (12 * 60 * 60 * 1000)
-                        });
-                        break;
-                    case 'premium':
-                        gameState.gems += 100;
-                        gameState.multiplier *= upgrade.value;
-                        startAutoClicker(7200);
-                        break;
+                    }
                 }
                 
-                showNotification(`¡${upgrade.name} activado!`, 'premium');
-                updateDisplay();
-                updateUpgradesDisplay();
+                showNotification(`¡${upgrade.name} comprado! ✨`, 'success');
+                loadUpgrades();
+                updateUI();
             } else {
-                showNotification('¡Gemas insuficientes!', 'error');
+                showNotification('¡No tienes suficientes gemas! 💎', 'error');
             }
         }
         
-        // ========== AUTO-CLICKER ==========
-        let autoClickerInterval;
-        
-        function startAutoClicker(seconds) {
-            if (autoClickerInterval) {
-                clearInterval(autoClickerInterval);
-            }
-            
-            const clicksPerSecond = 0.2; // 1 clic cada 5 segundos
-            const totalClicks = seconds * clicksPerSecond;
-            let clicksDone = 0;
-            
-            autoClickerInterval = setInterval(() => {
-                if (clicksDone < totalClicks) {
-                    // Simular clic automático
-                    gameState.money += gameState.clickPower * gameState.multiplier;
-                    gameState.totalClicks++;
-                    clicksDone++;
-                    updateDisplay();
-                } else {
-                    clearInterval(autoClickerInterval);
-                    showNotification('Auto-Clicker finalizado');
-                }
-            }, 5000);
-        }
-        
-        // ========== CARGAR PAQUETES DE GEMAS ==========
-        function loadGemPackages() {
-            const grid = document.getElementById('gemsGrid');
-            grid.innerHTML = '';
-            
-            gameState.gemPackages.forEach(pkg => {
-                const card = document.createElement('div');
-                card.className = 'gem-card';
-                card.onclick = () => buyGemPackage(pkg.id);
-                card.innerHTML = `
-                    <i class="${pkg.icon} gem-icon"></i>
-                    <div class="gem-name">${pkg.name}</div>
-                    <div class="gem-price">${pkg.price}</div>
-                    <button class="btn btn-premium">
-                        <i class="fas fa-shopping-cart"></i> Comprar
-                    </button>
-                `;
-                grid.appendChild(card);
-            });
-        }
-        
-        // ========== COMPRAR PAQUETE DE GEMAS ==========
-        function buyGemPackage(id) {
-            const pkg = gameState.gemPackages.find(p => p.id === id);
-            
-            if (!pkg) return;
-            
-            // En un juego real, aquí se integraría con pasarela de pago
-            showNotification(`Compra de ${pkg.name} procesada`, 'info');
-        }
-        
-        // ========== RETIROS ==========
+        // Solicitar retiro
         function requestWithdrawal() {
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const method = document.getElementById('withdrawMethod').value;
+            const email = document.getElementById('withdrawEmail').value;
             
-            if (!amount || amount < 10) {
-                showNotification('Monto mínimo: $10', 'error');
+            if (!amount || amount < 5) {
+                showNotification('Monto mínimo: $5.00', 'warning');
                 return;
             }
             
-            const usdAmount = gameState.crypto * gameState.bitcoinPrice;
+            if (amount > money) {
+                showNotification('Saldo insuficiente', 'error');
+                return;
+            }
             
-            if (usdAmount < amount) {
-                showNotification('Fondos insuficientes', 'error');
+            if (!method) {
+                showNotification('Selecciona un método de pago', 'warning');
+                return;
+            }
+            
+            if (!email) {
+                showNotification('Ingresa tu email o wallet', 'warning');
                 return;
             }
             
             // Simular retiro
-            const cryptoAmount = amount / gameState.bitcoinPrice;
-            gameState.crypto -= cryptoAmount;
+            money -= amount;
             
-            showNotification(`¡Retiro de $${amount} solicitado! Se procesará en 24-48 horas.`, 'success');
-            updateDisplay();
+            const withdrawal = {
+                id: Date.now(),
+                amount: amount,
+                method: method,
+                email: email,
+                date: new Date().toLocaleDateString(),
+                status: 'pending'
+            };
+            
+            withdrawalHistory.unshift(withdrawal);
+            updateWithdrawalHistory();
+            
+            showNotification(`Retiro de $${amount.toFixed(2)} solicitado 📤`, 'info');
             
             // Limpiar formulario
             document.getElementById('withdrawAmount').value = '';
+            document.getElementById('withdrawMethod').value = '';
+            document.getElementById('withdrawEmail').value = '';
+            
+            updateUI();
         }
         
-        // ========== REFERIDOS ==========
-        function copyReferralCode() {
-            const code = document.getElementById('referralCode').textContent;
-            navigator.clipboard.writeText(`Usa mi código ${code} en Crypto Clicker para ganar gemas extra!`);
-            showNotification('¡Código copiado al portapapeles!', 'success');
+        // Actualizar historial de retiros
+        function updateWithdrawalHistory() {
+            const historyDiv = document.getElementById('withdrawalHistory');
+            
+            if (withdrawalHistory.length === 0) {
+                historyDiv.innerHTML = `
+                    <div style="text-align: center; color: #94a3b8; padding: 20px;">
+                        No hay retiros aún
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            withdrawalHistory.slice(0, 5).forEach(withdrawal => {
+                const statusColor = withdrawal.status === 'completed' ? 'var(--secondary)' : 
+                                  withdrawal.status === 'pending' ? 'var(--warning)' : 'var(--danger)';
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <div>
+                            <div style="font-weight: bold;">$${withdrawal.amount.toFixed(2)}</div>
+                            <div style="font-size: 0.8rem; color: #94a3b8;">${withdrawal.method} • ${withdrawal.date}</div>
+                        </div>
+                        <div style="color: ${statusColor}; font-weight: bold; font-size: 0.9rem;">
+                            ${withdrawal.status === 'completed' ? '✓ Completado' : 
+                              withdrawal.status === 'pending' ? '⏳ Pendiente' : '✗ Rechazado'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyDiv.innerHTML = html;
         }
         
-        // ========== NAVEGACIÓN ==========
+        // Abrir tab
         function openTab(tabName) {
             // Ocultar todos los tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
             
-            // Mostrar el tab seleccionado
+            // Mostrar tab seleccionado
             document.getElementById(tabName).classList.add('active');
             
-            // Actualizar botones de tab
+            // Actualizar botones
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
             
-            // Activar el botón correspondiente
-            const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => 
-                btn.onclick && btn.onclick.toString().includes(tabName)
-            );
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Cargar generadores
+        function loadGenerators() {
+            const grid = document.getElementById('generatorsGrid');
+            let html = '';
             
-            if (activeBtn) activeBtn.classList.add('active');
-        }
-        
-        // ========== ADMIN ==========
-        function showAdminAccess() {
-            document.getElementById('adminModal').style.display = 'flex';
-        }
-        
-        function closeAdminModal() {
-            document.getElementById('adminModal').style.display = 'none';
-            document.getElementById('adminPassword').value = '';
-        }
-        
-        function accessAdminPanel() {
-            const password = document.getElementById('adminPassword').value;
+            generators.forEach(gen => {
+                const canAfford = money >= gen.cost;
+                html += `
+                    <div class="generator-card">
+                        <div class="generator-header">
+                            <i class="${gen.icon} generator-icon"></i>
+                            <div>
+                                <div class="generator-name">${gen.name}</div>
+                                <div class="generator-level">Nivel ${gen.level}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="generator-stats">
+                            <div>Ingreso:</div>
+                            <div class="generator-income">$${gen.income.toFixed(2)}/s</div>
+                        </div>
+                        
+                        <div class="generator-stats">
+                            <div>Costo:</div>
+                            <div class="generator-cost">$${gen.cost.toFixed(2)}</div>
+                        </div>
+                        
+                        <button class="btn ${canAfford ? 'btn-success' : 'btn-warning'}" 
+                                onclick="buyGenerator(${gen.id})"
+                                ${!canAfford ? 'disabled' : ''}>
+                            <i class="fas fa-shopping-cart"></i>
+                            ${gen.level === 0 ? 'Comprar' : 'Mejorar'}
+                        </button>
+                    </div>
+                `;
+            });
             
-            if (password === 'admin123') {
-                window.location.href = 'admin.html';
-            } else {
-                showNotification('Contraseña incorrecta', 'error');
+            grid.innerHTML = html;
+        }
+        
+        // Cargar mejoras
+        function loadUpgrades() {
+            const grid = document.getElementById('upgradesGrid');
+            let html = '';
+            
+            upgrades.forEach(upgrade => {
+                const canAfford = gems >= upgrade.cost;
+                html += `
+                    <div class="upgrade-card ${upgrade.purchased ? 'purchased' : ''}" 
+                         onclick="${!upgrade.purchased && canAfford ? `buyUpgrade(${upgrade.id})` : ''}">
+                        <div class="upgrade-header">
+                            <i class="${upgrade.icon} upgrade-icon"></i>
+                            <div>
+                                <div class="upgrade-title">${upgrade.name}</div>
+                                <div style="font-size: 0.9rem; color: #94a3b8;">${upgrade.description}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="upgrade-cost">
+                            ${upgrade.purchased ? '✓ Comprado' : `${upgrade.cost} 💎`}
+                        </div>
+                        
+                        ${!upgrade.purchased ? `
+                            <button class="btn ${canAfford ? 'btn-primary' : 'btn-warning'}" 
+                                    onclick="buyUpgrade(${upgrade.id})"
+                                    ${!canAfford ? 'disabled' : ''}>
+                                <i class="fas fa-shopping-cart"></i> Comprar
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+        }
+        
+        // Cargar ofertas de gemas
+        function loadGemOffers() {
+            const grid = document.getElementById('gemsGrid');
+            let html = '';
+            
+            gemOffers.forEach(offer => {
+                html += `
+                    <div class="gem-card" onclick="buyGems(${offer.id})">
+                        <i class="${offer.icon} gem-icon"></i>
+                        <div class="gem-name">${offer.name}</div>
+                        <div style="font-size: 0.9rem; color: #94a3b8;">
+                            ${offer.gems} Gemas
+                            ${offer.bonus > 0 ? `+ ${offer.bonus} extra` : ''}
+                        </div>
+                        <div class="gem-price">${offer.price}</div>
+                        <button class="btn btn-premium">
+                            <i class="fas fa-bolt"></i> Comprar Ahora
+                        </button>
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+        }
+        
+        // Comprar gemas (simulado)
+        function buyGems(id) {
+            showNotification('Función de compra en desarrollo 💳', 'info');
+        }
+        
+        // Actualizar UI
+        function updateUI() {
+            // Actualizar estadísticas
+            document.getElementById('money').textContent = money.toFixed(2);
+            document.getElementById('crypto').textContent = crypto.toFixed(6);
+            document.getElementById('gems').textContent = gems;
+            document.getElementById('level').textContent = level;
+            document.getElementById('moneyPerSec').textContent = moneyPerSecond.toFixed(2);
+            document.getElementById('cryptoValue').textContent = (crypto * cryptoValue).toFixed(2);
+            
+            // Actualizar sección de click
+            document.getElementById('clickPower').textContent = clickPower;
+            document.getElementById('clickUpgradeCost').textContent = clickUpgradeCost;
+            document.getElementById('totalClicks').textContent = totalClicks;
+            document.getElementById('clickMultiplier').textContent = clickPower + 'x';
+            document.getElementById('cpsDisplay').textContent = `${moneyPerSecond.toFixed(1)} CPS`;
+            document.getElementById('availableBalance').textContent = money.toFixed(2);
+            
+            // Actualizar nivel basado en dinero
+            const newLevel = Math.floor(Math.log10(money + 1)) + 1;
+            if (newLevel > level) {
+                level = newLevel;
+                showNotification(`¡Subiste al nivel ${level}! 🎉`, 'premium');
             }
         }
         
-        // ========== NOTIFICACIONES ==========
-        function showNotification(message, type = 'info') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
+        // Mostrar notificación
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
             notification.className = `notification ${type}`;
-            notification.style.display = 'block';
+            notification.textContent = message;
+            document.body.appendChild(notification);
             
             setTimeout(() => {
-                notification.style.display = 'none';
+                notification.style.display = 'block';
+            }, 10);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translate(-50%, -20px)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
             }, 3000);
         }
         
-        // ========== BUCLE DEL JUEGO ==========
-        function startGameLoop() {
-            setInterval(() => {
-                // Generar ingresos automáticos
-                const passiveIncome = gameState.moneyPerSec;
-                gameState.money += passiveIncome;
-                gameState.crypto += 0.00001 * gameState.multiplier;
-                
-                // Verificar upgrades expirados
-                const now = Date.now();
-                gameState.activeUpgrades = gameState.activeUpgrades.filter(upgrade => {
-                    if (upgrade.expires < now) {
-                        // Revertir efecto
-                        if (upgrade.type === 'multiplier') {
-                            gameState.multiplier /= 2;
-                        } else if (upgrade.type === 'turbo') {
-                            gameState.moneyPerSec /= 3;
-                        }
-                        showNotification(`Mejora ${upgrade.type} ha expirado`);
-                        return false;
+        // Guardar juego
+        function saveGame() {
+            const gameData = {
+                money,
+                crypto,
+                gems,
+                level,
+                totalClicks,
+                clickPower,
+                clickUpgradeCost,
+                generators,
+                upgrades,
+                withdrawalHistory,
+                lastSave: Date.now()
+            };
+            
+            localStorage.setItem('cryptoClickerSave', JSON.stringify(gameData));
+        }
+        
+        // Cargar juego
+        function loadGame() {
+            const saved = localStorage.getItem('cryptoClickerSave');
+            if (saved) {
+                try {
+                    const gameData = JSON.parse(saved);
+                    
+                    money = gameData.money || 0;
+                    crypto = gameData.crypto || 0;
+                    gems = gameData.gems || 0;
+                    level = gameData.level || 1;
+                    totalClicks = gameData.totalClicks || 0;
+                    clickPower = gameData.clickPower || 1;
+                    clickUpgradeCost = gameData.clickUpgradeCost || 50;
+                    
+                    if (gameData.generators) {
+                        generators = gameData.generators.map(savedGen => {
+                            const baseGen = generators.find(g => g.id === savedGen.id);
+                            return { ...baseGen, ...savedGen };
+                        });
                     }
-                    return true;
-                });
-                
-                updateDisplay();
-            }, 1000);
+                    
+                    if (gameData.upgrades) {
+                        upgrades = gameData.upgrades.map(savedUpgrade => {
+                            const baseUpgrade = upgrades.find(u => u.id === savedUpgrade.id);
+                            return { ...baseUpgrade, ...savedUpgrade };
+                        });
+                    }
+                    
+                    withdrawalHistory = gameData.withdrawalHistory || [];
+                    
+                    showNotification('Juego cargado exitosamente 💾', 'success');
+                } catch (e) {
+                    console.error('Error cargando juego:', e);
+                }
+            }
         }
         
-        // ========== FUNCIONES UTILITARIAS ==========
-        function formatMoney(num) {
-            if (num >= 1000000) {
-                return (num / 1000000).toFixed(2) + 'M';
+        // Resetear juego
+        function resetGame() {
+            if (confirm('¿Estás seguro de resetear tu progreso? Esto no se puede deshacer.')) {
+                localStorage.removeItem('cryptoClickerSave');
+                location.reload();
             }
-            if (num >= 1000) {
-                return (num / 1000).toFixed(1) + 'K';
-            }
-            return Math.floor(num).toLocaleString();
         }
         
-        // Agregar estilos de animación
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes floatUp {
-                0% { transform: translateY(0) scale(1); opacity: 1; }
-                100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
+        // Exportar datos (para debug)
+        function exportData() {
+            const data = {
+                money,
+                crypto,
+                gems,
+                level,
+                totalClicks,
+                clickPower,
+                generators,
+                upgrades
+            };
+            
+            console.log('Datos del juego:', data);
+            showNotification('Datos exportados a consola 📊', 'info');
+        }
+        
+        // Inicializar al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            // Asignar evento de click
+            document.getElementById('clickBtn').addEventListener('click', handleClick);
+            
+            // Iniciar juego
+            initGame();
+            
+            // Agregar botón de reset (para debug)
+            const resetBtn = document.createElement('button');
+            resetBtn.innerHTML = '<i class="fas fa-redo"></i>';
+            resetBtn.style.position = 'fixed';
+            resetBtn.style.bottom = '60px';
+            resetBtn.style.right = '10px';
+            resetBtn.style.padding = '10px';
+            resetBtn.style.background = 'rgba(239,68,68,0.2)';
+            resetBtn.style.color = 'var(--danger)';
+            resetBtn.style.border = '2px solid var(--danger)';
+            resetBtn.style.borderRadius = '50%';
+            resetBtn.style.cursor = 'pointer';
+            resetBtn.style.zIndex = '1001';
+            resetBtn.onclick = resetGame;
+            document.body.appendChild(resetBtn);
+        });
     </script>
 </body>
 </html>
